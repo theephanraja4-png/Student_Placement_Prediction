@@ -3,41 +3,41 @@ import joblib
 import pandas as pd
 import time
 
-# ------------------------
+# =====================================
 # Load Model
-# ------------------------
+# =====================================
 
 model = joblib.load("placement_model.pkl")
 
-# ------------------------
+# =====================================
 # Page Configuration
-# ------------------------
+# =====================================
 
 st.set_page_config(
-    page_title="Student Placement Prediction",
+    page_title="AI Career Readiness System",
     page_icon="🎓",
     layout="wide"
 )
 
-# ------------------------
-# CSS
-# ------------------------
+# =====================================
+# Custom CSS
+# =====================================
 
 st.markdown("""
 <style>
 
 .main{
-    background:#F8FAFF;
+    background:#F5F7FB;
 }
 
 .block-container{
-    padding-top:1rem;
+    padding-top:1.5rem;
 }
 
 .title{
     text-align:center;
-    color:#1565C0;
     font-size:42px;
+    color:#0D47A1;
     font-weight:bold;
 }
 
@@ -47,21 +47,45 @@ st.markdown("""
     font-size:18px;
 }
 
+.section{
+
+    background:white;
+
+    padding:20px;
+
+    border-radius:15px;
+
+    box-shadow:0px 2px 10px rgba(0,0,0,.15);
+
+}
+
+.
+
+.metric-container{
+
+    background:#EEF4FF;
+
+    padding:18px;
+
+    border-radius:12px;
+
+}
+
 .stButton>button{
 
 width:100%;
 
 height:55px;
 
-background:#1565C0;
-
-color:white;
-
 font-size:18px;
 
 font-weight:bold;
 
 border-radius:12px;
+
+background:#1565C0;
+
+color:white;
 
 }
 
@@ -73,71 +97,41 @@ color:white;
 
 }
 
-div[data-testid="metric-container"]{
-
-background:#EEF4FF;
-
-padding:15px;
-
-border-radius:12px;
-
-box-shadow:0px 2px 8px rgba(0,0,0,.15);
-
-}
-
 </style>
+
 """,unsafe_allow_html=True)
 
-# ------------------------
-# Sidebar
-# ------------------------
+# =====================================
+# Title
+# =====================================
 
-st.sidebar.title("🎓 Student Placement")
+st.markdown("""
 
-st.sidebar.markdown("---")
+<p class="title">
 
-st.sidebar.write("### Algorithm")
+🎓 AI Career Readiness & Placement Prediction System
 
-st.sidebar.success("Logistic Regression")
-
-st.sidebar.write("### Prediction")
-
-st.sidebar.info("Placed / Not Placed")
-
-st.sidebar.write("### Features")
-
-st.sidebar.info("10 Input Parameters")
-
-st.sidebar.markdown("---")
-
-st.sidebar.write("Enter student details and click Predict.")
-
-# ------------------------
-# Heading
-# ------------------------
-
-st.markdown(
-"""
-<p class='title'>
-🎓 Student Placement Prediction
 </p>
 
-<p class='subtitle'>
-Predict whether a student is likely to be placed based on academic performance and skills.
+<p class="subtitle">
+
+Predict placement probability and analyze student career readiness.
+
 </p>
-""",
-unsafe_allow_html=True
-)
+
+""",unsafe_allow_html=True)
 
 st.divider()
 
-# ------------------------
-# Inputs
-# ------------------------
+# =====================================
+# Student Details
+# =====================================
 
-col1,col2=st.columns(2)
+left,right=st.columns(2)
 
-with col1:
+with left:
+
+    st.subheader("🎓 Academic Details")
 
     cgpa=st.number_input(
         "CGPA",
@@ -145,6 +139,38 @@ with col1:
         10.0,
         7.5
     )
+
+    ssc=st.slider(
+        "SSC Marks",
+        0.0,
+        100.0,
+        80.0
+    )
+
+    hsc=st.slider(
+        "HSC Marks",
+        0.0,
+        100.0,
+        75.0
+    )
+
+    aptitude=st.slider(
+        "Aptitude Test Score",
+        0,
+        100,
+        70
+    )
+
+    softskills=st.slider(
+        "Soft Skills Rating",
+        1,
+        10,
+        7
+    )
+
+with right:
+
+    st.subheader("💼 Career Profile")
 
     internships=st.number_input(
         "Internships",
@@ -167,22 +193,6 @@ with col1:
         2
     )
 
-    aptitude=st.slider(
-        "Aptitude Test Score",
-        0,
-        100,
-        70
-    )
-
-with col2:
-
-    softskills=st.slider(
-        "Soft Skills Rating",
-        1,
-        10,
-        7
-    )
-
     extracurricular=st.selectbox(
         "Extracurricular Activities",
         ["No","Yes"]
@@ -193,26 +203,21 @@ with col2:
         ["No","Yes"]
     )
 
-    ssc=st.slider(
-        "SSC Marks",
-        0.0,
-        100.0,
-        80.0
-    )
-
-    hsc=st.slider(
-        "HSC Marks",
-        0.0,
-        100.0,
-        75.0
-    )
-
 st.divider()
-# ------------------------
-# Prediction
-# ------------------------
+# =====================================
+# Predict Button
+# =====================================
 
-if st.button("🔍 Predict Placement"):
+predict = st.button(
+    "🚀 Analyze Career Profile",
+    use_container_width=True
+)
+
+# =====================================
+# Prediction
+# =====================================
+
+if predict:
 
     input_df = pd.DataFrame({
 
@@ -238,105 +243,272 @@ if st.button("🔍 Predict Placement"):
 
     })
 
-    with st.spinner("Analyzing student profile..."):
+    with st.spinner("Analyzing Student Profile..."):
 
-        time.sleep(1.5)
+        time.sleep(2)
 
     prediction = model.predict(input_df)[0]
 
-    probability = model.predict_proba(input_df)
+    probability = model.predict_proba(input_df)[0][1]
 
-    confidence = probability.max()*100
+    placement_probability = probability * 100
+
+    # =====================================
+    # Resume Strength
+    # =====================================
+
+    resume_score = 0
+
+    resume_score += (cgpa / 10) * 25
+
+    resume_score += min(projects,5) * 5
+
+    resume_score += min(internships,3) * 10
+
+    resume_score += min(workshops,5) * 3
+
+    if training=="Yes":
+        resume_score += 10
+
+    resume_score = min(100, round(resume_score))
+
+    # =====================================
+    # Career Readiness
+    # =====================================
+
+    if placement_probability >= 80:
+
+        readiness = "🟢 Excellent"
+
+    elif placement_probability >= 60:
+
+        readiness = "🟡 Moderate"
+
+    else:
+
+        readiness = "🔴 Needs Improvement"
 
     st.divider()
 
-    c1,c2 = st.columns(2)
+    st.subheader("📊 Career Analysis")
+
+    c1,c2,c3 = st.columns(3)
 
     with c1:
 
-        if prediction==1:
+        st.metric(
 
-            st.balloons()
+            "Placement Probability",
 
-            st.metric(
-                "Prediction",
-                "Placed ✅"
-            )
+            f"{placement_probability:.2f}%"
 
-            st.success(
-                "The student is likely to be placed."
-            )
+        )
 
-        else:
-
-            st.metric(
-                "Prediction",
-                "Not Placed ❌"
-            )
-
-            st.error(
-                "The student is less likely to be placed."
-            )
+        st.progress(
+            float(probability)
+        )
 
     with c2:
 
         st.metric(
-            "Confidence",
-            f"{confidence:.2f}%"
+
+            "Resume Strength",
+
+            f"{resume_score}/100"
+
         )
 
-        st.progress(int(confidence))
+    with c3:
 
-    st.subheader("Input Summary")
+        st.metric(
 
-    st.dataframe(
-        input_df,
-        use_container_width=True
-    )
+            "Career Readiness",
 
-    st.subheader("Career Suggestions")
+            readiness
 
-    if prediction==1:
+        )
 
-        st.success("""
-✔ Maintain your CGPA
+    st.divider()
 
-✔ Continue practicing coding
+    # =====================================
+    # Prediction Result
+    # =====================================
 
-✔ Prepare for technical interviews
+    st.subheader("🎯 Prediction Result")
 
-✔ Improve communication skills
+    if prediction == 1:
 
-✔ Keep building projects
+        st.success(f"""
+### ✅ Likely to Get Placed
+
+**Placement Probability:** {placement_probability:.2f}%
+
+The student's academic performance and overall profile indicate a strong chance of getting placed.
+
+Continue improving technical skills and prepare for interviews.
 """)
 
     else:
 
-        if cgpa < 7:
+        st.error(f"""
+### ⚠ Placement Chances are Low
 
-            st.warning("Increase your CGPA.")
+**Placement Probability:** {placement_probability:.2f}%
 
-        if internships < 2:
+The student's current profile indicates a lower chance of placement.
 
-            st.warning("Complete more internships.")
-
-        if projects < 2:
-
-            st.warning("Build additional projects.")
-
-        if aptitude < 70:
-
-            st.warning("Practice aptitude regularly.")
-
-        if training=="No":
-
-            st.warning("Attend placement training.")
-
-        st.info("""
-Focus on improving technical skills,
-problem solving and communication.
+Focus on improving projects, internships, aptitude, communication skills, and technical knowledge.
 """)
+
+    st.divider()
+
+    # =====================================
+    # Personalized Recommendations
+    # =====================================
+
+    st.subheader("💡 Personalized Career Recommendations")
+
+    recommendations = []
+
+    if cgpa < 7.5:
+        recommendations.append("📚 Improve your CGPA to 7.5 or above.")
+
+    if internships < 2:
+        recommendations.append("💼 Complete at least one more internship.")
+
+    if projects < 3:
+        recommendations.append("💻 Build 2–3 real-world projects and upload them to GitHub.")
+
+    if workshops < 3:
+        recommendations.append("📜 Earn industry certifications (Python, Java, SQL, Cloud).")
+
+    if aptitude < 70:
+        recommendations.append("🧠 Practice aptitude and logical reasoning daily.")
+
+    if softskills < 7:
+        recommendations.append("🗣 Improve communication and presentation skills.")
+
+    if training == "No":
+        recommendations.append("🎯 Attend placement training and mock interviews.")
+
+    if extracurricular == "No":
+        recommendations.append("🏆 Participate in hackathons, coding contests, or technical clubs.")
+
+    if len(recommendations) == 0:
+
+        st.success("""
+🎉 Excellent Profile!
+
+Keep improving your coding skills, continue practicing DSA,
+and prepare for company-specific interviews.
+""")
+
+    else:
+
+        for item in recommendations:
+            st.warning(item)
+
+    st.divider()
+
+    # =====================================
+    # Skill Analysis
+    # =====================================
+
+    st.subheader("📈 Skill Analysis")
+
+    technical = round((projects*10 + internships*15 + workshops*5)/2)
+    technical = min(100, technical)
+
+    communication = softskills * 10
+
+    academics = round(((ssc + hsc)/2))
+
+    aptitude_score = aptitude
+
+    st.write("**Academic Performance**")
+    st.progress(academics/100)
+
+    st.write(f"{academics}%")
+
+    st.write("**Technical Skills**")
+    st.progress(technical/100)
+
+    st.write(f"{technical}%")
+
+    st.write("**Communication Skills**")
+    st.progress(communication/100)
+
+    st.write(f"{communication}%")
+
+    st.write("**Aptitude**")
+    st.progress(aptitude_score/100)
+
+    st.write(f"{aptitude_score}%")
+
+    st.divider()
+
+    # =====================================
+    # 30-Day Career Roadmap
+    # =====================================
+
+    st.subheader("🗓 30-Day Career Roadmap")
+
+    st.info("""
+
+### Week 1
+✅ Improve Aptitude
+
+✅ Practice Communication
+
+### Week 2
+✅ Learn SQL
+
+✅ Revise DBMS & OOP
+
+### Week 3
+✅ Solve DSA Problems
+
+✅ Build One Mini Project
+
+### Week 4
+✅ Resume Preparation
+
+✅ Mock Interviews
+
+✅ Apply for Companies
+
+""")
+
+    st.divider()
+
+    # =====================================
+    # Student Summary
+    # =====================================
+
+    st.subheader("📋 Career Summary")
+
+    summary = pd.DataFrame({
+
+        "Placement Probability":[f"{placement_probability:.2f}%"],
+
+        "Resume Strength":[f"{resume_score}/100"],
+
+        "Career Readiness":[readiness]
+
+    })
+
+    st.dataframe(
+        summary,
+        hide_index=True,
+        use_container_width=True
+    )
 
 st.divider()
 
-st.caption("Student Placement Prediction")
+st.caption(
+"""
+AI Career Readiness & Placement Prediction System
+
+Built using Streamlit • Scikit-Learn • Machine Learning
+"""
+)
